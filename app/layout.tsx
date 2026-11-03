@@ -3,8 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import ThemeProvider from "@/context/Theme";
 import { cn } from "@/lib/utils";
-import Navbar from "@/components/navigation/navbar";
-
+import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react";
 const inter = localFont({
   src: "../fonts/interVF.ttf",
   variable: "--font-inter",
@@ -33,10 +33,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Navbar/>
-          {children}
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
