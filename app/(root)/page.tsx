@@ -1,3 +1,4 @@
+import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
@@ -13,9 +14,9 @@ export default async function Home() {
         </Button>
       </section>
       <section className="mt-11">
-        <LocalSearch imgSrc = "/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" route="/"/>
+        <LocalSearch imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" route="/" />
       </section>
-      HomeFilter
+      <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6">
         <p>question card 1</p>
         <p>question card 2</p>
