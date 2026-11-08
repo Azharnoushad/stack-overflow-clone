@@ -1,27 +1,99 @@
+import QuestionCard from "@/components/card/QuestionCard";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
+import { io } from "next/cache";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default async function Home() {
+const questions = [
+  {
+    _id: "1",
+    title: "How to learn React?",
+    description: "I want to learn React, can anyone help me?",
+    tags: [
+      { _id: "1", name: "React" },
+      { _id: "2", name: "JavaScript" },
+    ],
+    author: {
+      _id: "1",
+      name: "John Doe",
+      image:
+        "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
+    },
+    upvotes: 10,
+    answers: 5,
+    views: 100,
+    createdAt: new Date(),
+  },
+  {
+    _id: "2",
+    title: "How to learn JavaScript?",
+    description: "I want to learn JavaScript, can anyone help me?",
+    tags: [
+      { _id: "1", name: "JavaScript" },
+      { _id: "2", name: "JavaScript" },
+    ],
+    author: {
+      _id: "1",
+      name: "John Doe",
+      image:
+        "https://static.vecteezy.com/system/resources/previews/002/002/403/non_2x/man-with-beard-avatar-character-isolated-icon-free-vector.jpg",
+    },
+    upvotes: 10,
+    answers: 5,
+    views: 100,
+    createdAt: new Date("2021-09-01"),
+  },
+];
+
+interface SearchParams {
+  searchParams: Promise<{ [key: string]: string }>;
+}
+
+const QuestionList = async ({ searchParams }: SearchParams) => {
+  const { query = "", filter = "" } = await searchParams;
+  await io();
+
+  const filteredQuestions = questions.filter((question) => {
+    const matchesQuery = question.title.toLowerCase().includes(query.toLowerCase());
+    const matchesFilter = filter ? question.tags[0].name.toLowerCase() === filter.toLowerCase() : true;
+    return matchesQuery && matchesFilter;
+  });
+
+  return (
+    <div className="mt-10 flex w-full flex-col gap-6">
+      {filteredQuestions.map((question) => (
+        <QuestionCard key={question._id} question={question} />
+      ))}
+    </div>
+  );
+};
+
+const Home = ({ searchParams }: SearchParams) => {
   return (
     <>
-      <section className="w-ful flex flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
+      <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
-        <Button className="primary-gradient !test-light-900 min-h-[46px] px-4 py-3">
-          <Link href={ROUTES.ASK_QUESTIONS}>Ask a Questions</Link>
+
+        <Button className="primary-gradient text-light-900! min-h-11.5 px-4 py-3" asChild>
+          <Link href={ROUTES.ASK_QUESTIONS}>Ask a Question</Link>
         </Button>
       </section>
       <section className="mt-11">
-        <LocalSearch imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" route="/" />
+        <Suspense>
+          <LocalSearch route="/" imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" />
+        </Suspense>
       </section>
-      <HomeFilter />
-      <div className="mt-10 flex w-full flex-col gap-6">
-        <p>question card 1</p>
-        <p>question card 2</p>
-        <p>question card 3</p>
-      </div>
+      <Suspense>
+        <HomeFilter />
+      </Suspense>
+      <Suspense fallback={<p className="text-dark400_light700 mt-10">Loading questions...</p>}>
+        <QuestionList searchParams={searchParams} />
+      </Suspense>
     </>
   );
-}
+};
+
+export default Home;

@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     agentFeedback: true,
   },
   cacheComponents: true,
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "static.vecteezy.com" }],
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {
