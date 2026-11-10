@@ -1,24 +1,29 @@
-import { model, models, Schema, Types } from "mongoose";
+import { Schema, models, model, Types, Document } from "mongoose";
 
 export interface IAnswer {
   author: Types.ObjectId;
-  questions: Types.ObjectId;
+  question: Types.ObjectId;
   content: string;
-  upVotes: number;
-  downVotes: number;
+  upvotes: number;
+  downvotes: number;
 }
 
-const answerScheme = new Schema<IAnswer>(
+export interface IAnswerDoc extends IAnswer, Document {}
+const AnswerSchema = new Schema<IAnswer>(
   {
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    questions: { type: Schema.Types.ObjectId, ref: "Question", required: true },
+    question: {
+      type: Schema.Types.ObjectId,
+      ref: "Question",
+      required: true,
+    },
     content: { type: String, required: true },
-    upVotes: { type: Number, default: 0 },
-    downVotes: { type: Number, default: 0 },
+    upvotes: { type: Number, default: 0 },
+    downvotes: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const Answer = models?.Answer || model<IAnswer>("Answer", answerScheme);
+const Answer = models?.Answer || model<IAnswer>("Answer", AnswerSchema);
 
 export default Answer;
