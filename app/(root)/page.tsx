@@ -1,12 +1,13 @@
-import QuestionCard from "@/components/card/QuestionCard";
+import Link from "next/link";
+
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
+import handleError from "@/lib/handlers/error";
+import { ValidationError } from "@/lib/http-error";
 import { ROUTES } from "@/constants/routes";
-import { io } from "next/cache";
-import Link from "next/link";
-import { Suspense } from "react";
-// Wx36GFLG4FmuV26S
+import QuestionCard from "@/components/card/QuestionCard";
+
 const questions = [
   {
     _id: "1",
@@ -48,13 +49,25 @@ const questions = [
   },
 ];
 
+const test = async () => {
+  try {
+    throw new ValidationError({
+      title: ["Required"],
+      tags: ['"JavaScript" is not a valid tag.'],
+    });
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
 
-const QuestionList = async ({ searchParams }: SearchParams) => {
+const Home = async ({ searchParams }: SearchParams) => {
+  await test();
+
   const { query = "", filter = "" } = await searchParams;
-  await io();
 
   const filteredQuestions = questions.filter((question) => {
     const matchesQuery = question.title.toLowerCase().includes(query.toLowerCase());
@@ -63,35 +76,23 @@ const QuestionList = async ({ searchParams }: SearchParams) => {
   });
 
   return (
-    <div className="mt-10 flex w-full flex-col gap-6">
-      {filteredQuestions.map((question) => (
-        <QuestionCard key={question._id} question={question} />
-      ))}
-    </div>
-  );
-};
-
-const Home = ({ searchParams }: SearchParams) => {
-  return (
     <>
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
 
-        <Button className="primary-gradient text-light-900! min-h-11.5 px-4 py-3" asChild>
+        <Button className="primary-gradient !text-light-900 min-h-[46px] px-4 py-3" asChild>
           <Link href={ROUTES.ASK_QUESTIONS}>Ask a Question</Link>
         </Button>
       </section>
       <section className="mt-11">
-        <Suspense>
-          <LocalSearch route="/" imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" />
-        </Suspense>
+        <LocalSearch route="/" imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" />
       </section>
-      <Suspense>
-        <HomeFilter />
-      </Suspense>
-      <Suspense fallback={<p className="text-dark400_light700 mt-10">Loading questions...</p>}>
-        <QuestionList searchParams={searchParams} />
-      </Suspense>
+      <HomeFilter />
+      <div className="mt-10 flex w-full flex-col gap-6">
+        {filteredQuestions.map((question) => (
+          <QuestionCard key={question._id} question={question} />
+        ))}
+      </div>
     </>
   );
 };
