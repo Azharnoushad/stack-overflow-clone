@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
@@ -64,7 +65,7 @@ interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
 
-const Home = async ({ searchParams }: SearchParams) => {
+const QuestionList = async ({ searchParams }: SearchParams) => {
   await test();
 
   const { query = "", filter = "" } = await searchParams;
@@ -76,6 +77,16 @@ const Home = async ({ searchParams }: SearchParams) => {
   });
 
   return (
+    <div className="mt-10 flex w-full flex-col gap-6">
+      {filteredQuestions.map((question) => (
+        <QuestionCard key={question._id} question={question} />
+      ))}
+    </div>
+  );
+};
+
+const Home = ({ searchParams }: SearchParams) => {
+  return (
     <>
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
@@ -85,14 +96,16 @@ const Home = async ({ searchParams }: SearchParams) => {
         </Button>
       </section>
       <section className="mt-11">
-        <LocalSearch route="/" imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" />
+        <Suspense>
+          <LocalSearch route="/" imgSrc="/icons/search.svg" placeholder="Search questions..." otherClasses="flex-1" />
+        </Suspense>
       </section>
-      <HomeFilter />
-      <div className="mt-10 flex w-full flex-col gap-6">
-        {filteredQuestions.map((question) => (
-          <QuestionCard key={question._id} question={question} />
-        ))}
-      </div>
+      <Suspense>
+        <HomeFilter />
+      </Suspense>
+      <Suspense>
+        <QuestionList searchParams={searchParams} />
+      </Suspense>
     </>
   );
 };

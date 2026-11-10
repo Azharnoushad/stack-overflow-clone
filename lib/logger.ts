@@ -19,7 +19,8 @@ const logger = pino({
   formatters: {
     level: (label) => ({ level: label.toUpperCase() }),
   },
-  timestamp: pino.stdTimeFunctions.isoTime,
+  // Date.now() is blocked during Cache Components prerendering; performance.now() is allowed for telemetry.
+  timestamp: () => `,"time":"${new Date(performance.timeOrigin + performance.now()).toISOString()}"`,
 });
 
 export default logger;
