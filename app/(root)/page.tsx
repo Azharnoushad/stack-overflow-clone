@@ -8,6 +8,7 @@ import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-error";
 import { ROUTES } from "@/constants/routes";
 import QuestionCard from "@/components/card/QuestionCard";
+import { api } from "@/lib/api";
 
 const questions = [
   {
@@ -52,10 +53,7 @@ const questions = [
 
 const test = async () => {
   try {
-    throw new ValidationError({
-      title: ["Required"],
-      tags: ['"JavaScript" is not a valid tag.'],
-    });
+   return await api.users.getAll()
   } catch (error) {
     return handleError(error);
   }
@@ -66,7 +64,9 @@ interface SearchParams {
 }
 
 const QuestionList = async ({ searchParams }: SearchParams) => {
-  await test();
+  const users = await test();
+
+  console.log(users)
 
   const { query = "", filter = "" } = await searchParams;
 
