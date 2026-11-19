@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { ActionResponse } from "@/types/global";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 interface AuthFormProps<T extends FieldValues> {
   formType: "SIGN_IN" | "SIGN_UP";
@@ -40,19 +40,27 @@ const AuthForm = <T extends FieldValues>({
   const router = useRouter();
 
   const handleSubmit: SubmitHandler<T> = async (data) => {
-    const result = (await onSubmit(data)) as ActionResponse;
+    try {
+      const result = (await onSubmit(data)) as ActionResponse;
 
-    if (result?.success) {
-      toast.success("Success", {
-        description:
-          formType === "SIGN_IN" ? "Signed in successfully" : "Signed up successfully",
-      });
+      if (result?.success) {
+        // Defer toast so it isn't dropped during the server-action re-render
+        setTimeout(() => {
+          toast.success("Success", {
+            description:
+              formType === "SIGN_IN" ? "Signed in successfully" : "Signed up successfully",
+          });
+        }, 0);
 
-      router.push(ROUTES.HOME);
-    } else {
-      toast.error(`Error ${result?.status}`, {
-        description: result?.error?.message,
-      });
+        router.push(ROUTES.HOME);
+        return;
+      }
+
+      const message = result?.error?.message || "Something went wrong";
+      setTimeout(() => toast.error("Error", { description: message }), 0);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Something went wrong";
+      setTimeout(() => toast.error("Error", { description: message }), 0);
     }
   };
 
