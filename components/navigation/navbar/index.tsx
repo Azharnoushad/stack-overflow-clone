@@ -1,7 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
-import Theme from "./Theme";
+import { Suspense } from "react";
+
+import { auth } from "@/auth";
+import UserAvatar from "@/components/UserAvatar";
+
 import MobileNavigation from "./MobileNavigation";
+import Theme from "./Theme";
+
+const NavbarAvatar = async () => {
+  const session = await auth();
+
+  if (!session?.user?.id) return null;
+
+  return (
+    <UserAvatar id={session.user.id} name={session.user.name!} imageUrl={session.user.image} />
+  );
+};
 
 const Navbar = () => {
   return (
@@ -17,7 +32,24 @@ const Navbar = () => {
 
       <div className="flex-between gap-5">
         <Theme />
-        <MobileNavigation/>
+
+        <Suspense fallback={<div className="h-9 w-9" />}>
+          <NavbarAvatar />
+        </Suspense>
+
+        <Suspense
+          fallback={
+            <Image
+              src={"/icons/hamburger.svg"}
+              width={36}
+              height={36}
+              alt="menu"
+              className="invert-colors sm:hidden"
+            />
+          }
+        >
+          <MobileNavigation />
+        </Suspense>
       </div>
     </nav>
   );

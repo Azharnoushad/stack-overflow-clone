@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "static.vecteezy.com" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "static.vecteezy.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+    ],
   },
   partialPrefetching: true,
   turbopack: {
