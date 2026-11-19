@@ -23,6 +23,8 @@
 
   --color-link-100: #1da1f2;
 
+  --color-destructive: #ef4444;
+
   --radius-2: 8px;
   --radius-1_5: 6px;
   --radius-lg: var(--radius);
